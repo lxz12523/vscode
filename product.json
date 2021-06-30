@@ -19,6 +19,7 @@
 	"linuxIconName": "com.visualstudio.code.oss",
 	"licenseFileName": "LICENSE.txt",
 	"reportIssueUrl": "https://github.com/Microsoft/vscode/issues/new",
+	"documentationUrl": "https://www.baidu.com",
 	"urlProtocol": "code-oss",
 	"extensionAllowedProposedApi": [
 		"ms-vscode.references-view"

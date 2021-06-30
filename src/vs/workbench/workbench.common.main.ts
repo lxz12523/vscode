@@ -18,6 +18,7 @@ import 'vs/workbench/browser/workbench.contribution';
 import 'vs/workbench/browser/actions/textInputActions';
 import 'vs/workbench/browser/actions/developerActions';
 import 'vs/workbench/browser/actions/helpActions';
+import 'vs/workbench/browser/actions/myMenuActions';
 import 'vs/workbench/browser/actions/layoutActions';
 import 'vs/workbench/browser/actions/listCommands';
 import 'vs/workbench/browser/actions/navigationActions';

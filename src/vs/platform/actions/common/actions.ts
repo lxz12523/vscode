@@ -76,6 +76,7 @@ export const enum MenuId {
 	MenubarFileMenu,
 	MenubarGoMenu,
 	MenubarHelpMenu,
+	MenubarLogin,
 	MenubarLayoutMenu,
 	MenubarNewBreakpointMenu,
 	MenubarPreferencesMenu,
