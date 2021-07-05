@@ -92,6 +92,7 @@ export interface IProductConfiguration {
 	};
 
 	readonly documentationUrl?: string;
+	readonly baiduUrl?: string;
 	readonly releaseNotesUrl?: string;
 	readonly keyboardShortcutsUrlMac?: string;
 	readonly keyboardShortcutsUrlLinux?: string;
