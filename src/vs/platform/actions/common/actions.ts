@@ -104,6 +104,7 @@ export class MenuId {
 	static readonly MenubarGoMenu = new MenuId('MenubarGoMenu');
 	static readonly MenubarHelpMenu = new MenuId('MenubarHelpMenu');
 	static readonly MenubarLogin = new MenuId('MenubarLogin');
+	static readonly MenubarCharUI = new MenuId('MenubarCharUI');
 	static readonly MenubarLayoutMenu = new MenuId('MenubarLayoutMenu');
 	static readonly MenubarNewBreakpointMenu = new MenuId('MenubarNewBreakpointMenu');
 	static readonly MenubarPreferencesMenu = new MenuId('MenubarPreferencesMenu');

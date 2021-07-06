@@ -216,6 +216,12 @@ export class MenuBar extends Disposable {
 			buttonElement.appendChild(titleElement);
 			this.container.insertBefore(buttonElement, this.overflowMenu.buttonElement);
 
+			// CharUI
+			if (menuBarMenu.label === '&CharUI') { // mnemonicMenuLabe('&&CharUI')
+				buttonElement.setAttribute('id', menuBarMenu.label);
+				buttonElement.style.display = 'none';
+			}
+
 			let mnemonicMatches = MENU_MNEMONIC_REGEX.exec(menuBarMenu.label);
 
 			// Register mnemonics

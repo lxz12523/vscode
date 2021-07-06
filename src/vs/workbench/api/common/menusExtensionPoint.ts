@@ -223,6 +223,11 @@ const apiMenus: IAPIMenu[] = [
 		key: 'ports/item/port/inline',
 		id: MenuId.TunnelPortInline,
 		description: localize('view.tunnelPortInline', "The Ports view item port inline menu")
+	},
+	{ // CharUI
+		key: 'menuBar/charUI',
+		id: MenuId.MenubarCharUI,
+		description: localize('charUI', "The  view item build or create project")
 	}
 ];
 
@@ -709,6 +714,15 @@ menusExtensionPoint.setHandler(extensions => {
 			if (!menu) {
 				collector.warn(localize('menuId.invalid', "`{0}` is not a valid menu identifier", entry.key));
 				return;
+			}
+
+			// CharUI
+			if (menu.id === MenuId.MenubarCharUI) {
+				// tslint:disable-next-line: no-dom-globals
+				const menuBar = document.getElementById('&CharUI'); // mnemonicMenuLabe('&&CharUI')
+				if (menuBar) {
+					menuBar.style.display = 'block';
+				}
 			}
 
 			if (menu.proposed && !extension.description.enableProposedApi) {
