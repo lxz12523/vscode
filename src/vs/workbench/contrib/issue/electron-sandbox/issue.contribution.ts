@@ -48,3 +48,7 @@ registerSingleton(IWorkbenchIssueService, WorkbenchIssueService, true);
 CommandsRegistry.registerCommand('_issues.getSystemStatus', (accessor) => {
 	return accessor.get(IIssueService).getSystemStatus();
 });
+
+CommandsRegistry.registerCommand('workbench.action.openBrowserWindow', function (accessor, args) {
+	return accessor.get(IWorkbenchIssueService).openBrowserWindow(args);
+});

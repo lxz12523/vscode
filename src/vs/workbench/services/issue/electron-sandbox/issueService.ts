@@ -34,6 +34,10 @@ export class WorkbenchIssueService implements IWorkbenchIssueService {
 		@IAuthenticationService private readonly authenticationService: IAuthenticationService
 	) { }
 
+	openBrowserWindow(args: any): Promise<void> {
+		return this.issueService.openBrowserWindow(args).catch((error) => { });
+	}
+
 	async openReporter(dataOverrides: Partial<IssueReporterData> = {}): Promise<void> {
 		const extensionData: IssueReporterExtensionData[] = [];
 		try {

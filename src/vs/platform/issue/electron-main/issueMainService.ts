@@ -39,6 +39,9 @@ export class IssueMainService implements ICommonIssueService {
 	private processExplorerWindow: BrowserWindow | null = null;
 	private processExplorerParentWindow: BrowserWindow | null = null;
 
+	private _browserWindow: BrowserWindow | null = null;
+	private _browserParentWindow: BrowserWindow | null = null;
+
 	constructor(
 		private userEnv: IProcessEnvironment,
 		@IEnvironmentMainService private readonly environmentMainService: IEnvironmentMainService,
@@ -172,12 +175,134 @@ export class IssueMainService implements ICommonIssueService {
 			const mainProcessInfo = await this.launchMainService.getMainProcessInfo();
 			this.safeSend(event, 'vscode:windowsInfoResponse', mainProcessInfo.windows);
 		});
+
+		ipcMain.on('vscode:closeBrowserWindow', (event: IpcMainEvent) => {
+			if (this._browserWindow) {
+				this._browserWindow.close();
+			}
+		});
 	}
 
 	private safeSend(event: IpcMainEvent, channel: string, ...args: unknown[]): void {
 		if (!event.sender.isDestroyed()) {
 			event.sender.send(channel, ...args);
 		}
+	}
+
+	openBrowserWindow(args: any): Promise<void> {
+		return new Promise((resolve, reject) => {
+			if (this._browserWindow && !this._browserWindow.isDestroyed()) {
+				if (this._browserWindow.isMinimized()) {
+					this._browserWindow.restore();
+				}
+				this._browserWindow.focus();
+				reject();
+				return;
+			}
+			if (!args || args.length === 0) {
+				reject();
+				return;
+			}
+			const config = args[0];
+			let windowHeight;
+			if (process.platform === 'win32') {
+				windowHeight = config['height'] ? config['height'] : 10;
+			}
+			else {
+				windowHeight = config['height'] ? (config['height'] + 15) : 25;
+			}
+			const windowWidth = config['width'];
+
+			if (!this._browserWindow) {
+				this._browserParentWindow = BrowserWindow.getFocusedWindow();
+				if (this._browserParentWindow) {
+					const position = this.getWindowPosition(this._browserParentWindow, 700, 800);
+					this._browserWindow = new BrowserWindow({
+						fullscreen: false,
+						frame: false,
+						transparent: false,
+						show: false,
+						center: true,
+						parent: this._browserParentWindow,
+						width: windowWidth ? windowWidth : position.width,
+						height: windowHeight ? windowHeight : position.height,
+						minWidth: 300,
+						minHeight: 200,
+						title: localize('openBrowserWindow', "open BrowserWindow"),
+						backgroundColor: (config['data'].theme.indexOf('Dark') !== -1) ? config['darkBackgroundColor'] : config['lightBackgroundColor'],
+						webPreferences: {
+							nodeIntegration: true,
+							contextIsolation: false,
+							//enableRemoteModule: true
+						}
+					});
+					this._browserWindow.setMenuBarVisibility(false);
+					this._browserWindow.webContents.openDevTools();
+					this.logService.trace('issueService#openBrowserWindow: opening BrowserWindow');
+					this._browserWindow.loadURL(config['loadURL']);
+					this._browserWindow.once('ready-to-show', () => {
+						this._browserWindow?.show();
+						this._browserWindow?.setAlwaysOnTop(true);
+						setTimeout(() => {
+							this._browserWindow?.setAlwaysOnTop(false);
+							if (config['winId'] === 'addEmulator') {
+								resolve();
+							}
+						}, 100);
+					});
+					if (config['data']) {
+						this._browserWindow.webContents.on('did-finish-load', () => {
+							this._browserWindow?.webContents.send('stored-data', config['data']);
+						});
+					}
+					const from = 'mouse';
+					if (config['events'] && config['events'].length > 0) {
+						for (let i = 0; i < config['events'].length; ++i) {
+							let event = config['events'][i];
+							let channel = event['channel'];
+							let command = event['command'];
+							if (!event || !channel || !command) {
+								continue;
+							}
+							ipcMain.removeAllListeners(channel);
+							ipcMain.on(channel, (event, args) => {
+
+								switch (config['winId']) {
+									case 'certificate':
+										resolve(args);
+										break;
+									default:
+										this._browserParentWindow?.webContents.send('vscode:runAction', { id: command, from: from, args: [args] });
+								}
+							});
+							this._browserWindow.on('closed', () => {
+								ipcMain.removeAllListeners(channel);
+								this._browserWindow = null;
+								reject();
+							});
+						}
+					}
+					else {
+						this._browserWindow.on('closed', () => {
+							this._browserWindow = null;
+							reject();
+						});
+					}
+
+					this._browserParentWindow.on('closed', () => {
+						if (this._browserWindow) {
+							this._browserWindow.close();
+							this._browserWindow = null;
+							reject();
+						}
+					});
+				}
+			}
+
+			if (this._browserWindow) {
+				this._browserWindow.focus();
+			}
+		});
 	}
 
 	async openReporter(data: IssueReporterData): Promise<void> {
